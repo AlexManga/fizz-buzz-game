@@ -73,17 +73,6 @@ public class FizzBuzzRequest {
     }
 
     @Override
-    public String toString() {
-        return "{" +
-                "multiple1=" + multiple1 +
-                ", multiple2=" + multiple2 +
-                ", limit=" + limit +
-                ", substitutionWordForMultiple1='" + substitutionWordForMultiple1 + '\'' +
-                ", substitutionWordForMultiple2='" + substitutionWordForMultiple2 + '\'' +
-                '}';
-    }
-
-    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
