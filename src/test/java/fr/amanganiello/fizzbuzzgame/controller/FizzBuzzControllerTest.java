@@ -1,5 +1,6 @@
 package fr.amanganiello.fizzbuzzgame.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import fr.amanganiello.fizzbuzzgame.model.FizzBuzzRequest;
 import fr.amanganiello.fizzbuzzgame.model.FizzBuzzRequestStat;
 import fr.amanganiello.fizzbuzzgame.service.FizzBuzzService;
@@ -13,7 +14,7 @@ import org.springframework.http.ResponseEntity;
 
 import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -31,10 +32,10 @@ class FizzBuzzControllerTest {
     private StatsService statsService;
 
     @Test
-    void should_call_services_when_getFizzBuzz() {
+    void should_call_stats_and_fizzbuzz_services_when_getFizzBuzz() throws JsonProcessingException {
         // setup
         FizzBuzzRequest request = new FizzBuzzRequest();
-        request.setMultiple1(0);
+        request.setMultiple1(2);
         request.setMultiple2(5);
         request.setLimit(10);
         request.setSubstitutionWordForMultiple1("fizz");
@@ -63,10 +64,15 @@ class FizzBuzzControllerTest {
         when(statsService.getMostUsedRequest()).thenReturn(Optional.of(requestStat));
 
         // test
-        ResponseEntity<String> fizzBuzzStats = controller.getFizzBuzzStats();
+        ResponseEntity<FizzBuzzRequestStat> fizzBuzzStats = controller.getFizzBuzzStats();
 
         // assert
-        assertThat(fizzBuzzStats.getBody()).isEqualTo("The most used request is {multiple1=2, multiple2=5, limit=10, substitutionWordForMultiple1='fizz', substitutionWordForMultiple2='buzz'} with 1 call(s)");
+        assertThat(fizzBuzzStats.getBody().getNbCalls()).isEqualTo(1);
+        assertThat(fizzBuzzStats.getBody().getRequest().getMultiple1()).isEqualTo(2);
+        assertThat(fizzBuzzStats.getBody().getRequest().getMultiple2()).isEqualTo(5);
+        assertThat(fizzBuzzStats.getBody().getRequest().getLimit()).isEqualTo(10);
+        assertThat(fizzBuzzStats.getBody().getRequest().getSubstitutionWordForMultiple1()).isEqualTo("fizz");
+        assertThat(fizzBuzzStats.getBody().getRequest().getSubstitutionWordForMultiple2()).isEqualTo("buzz");
     }
 
     @Test
@@ -75,10 +81,10 @@ class FizzBuzzControllerTest {
         when(statsService.getMostUsedRequest()).thenReturn(Optional.empty());
 
         // test
-        ResponseEntity<String> fizzBuzzStats = controller.getFizzBuzzStats();
+        ResponseEntity<FizzBuzzRequestStat> fizzBuzzStats = controller.getFizzBuzzStats();
 
         // assert
-        assertThat(fizzBuzzStats.getBody()).isEqualTo("No most used request founded");
+        assertThat(fizzBuzzStats.getBody()).isNull();
     }
 
 }

@@ -10,6 +10,11 @@ public class FizzBuzzRequestStat {
         this.request = request;
     }
 
+    // for serialization
+    public FizzBuzzRequestStat() {
+        this.request = new FizzBuzzRequest();
+    }
+
     public int getNbCalls() {
         return nbCalls;
     }

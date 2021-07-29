@@ -1,5 +1,6 @@
 package fr.amanganiello.fizzbuzzgame.controller;
 
+import fr.amanganiello.fizzbuzzgame.model.FizzBuzzRequestStat;
 import io.restassured.specification.RequestSpecification;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -8,12 +9,19 @@ import org.springframework.test.annotation.DirtiesContext;
 
 import static io.restassured.RestAssured.given;
 import static io.restassured.RestAssured.when;
+import static io.restassured.http.ContentType.JSON;
 import static org.assertj.core.api.Assertions.assertThat;
 
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 class FizzBuzzControllerIntegrationTest {
+
+    public static final String MULTIPLE_1 = "multiple1";
+    public static final String MULTIPLE_2 = "multiple2";
+    public static final String LIMIT = "limit";
+    public static final String SUBSTITUTION_WORD_FOR_MULTIPLE_1 = "substitutionWordForMultiple1";
+    public static final String SUBSTITUTION_WORD_FOR_MULTIPLE_2 = "substitutionWordForMultiple2";
 
     @LocalServerPort
     private int port;
@@ -45,7 +53,7 @@ class FizzBuzzControllerIntegrationTest {
                 .extract().asString();
 
         // assert
-        assertThat(response).isEqualTo("No most used request founded");
+        assertThat(response).isEmpty();
     }
 
     @Test
@@ -54,23 +62,47 @@ class FizzBuzzControllerIntegrationTest {
         buildRequestSpecification().when().get(BASE_URL + port + FIZZ_BUZZ_ENDPOINT);
 
         // test
-        String response = when().get(BASE_URL + port + FIZZ_BUZZ_ENDPOINT + "/stats")
+        FizzBuzzRequestStat response = when().get(BASE_URL + port + FIZZ_BUZZ_ENDPOINT + "/stats")
                 .then()
                 .statusCode(200)
-                .extract().asString();
+                .extract().as(FizzBuzzRequestStat.class);
 
         // assert
-        assertThat(response)
-                .isEqualTo("The most used request is {multiple1=3, multiple2=5, limit=15, substitutionWordForMultiple1='fizz', substitutionWordForMultiple2='buzz'} with 1 call(s)");
+        assertThat(response.getNbCalls()).isEqualTo(1);
+        assertThat(response.getRequest()).isNotNull();
+        assertThat(response.getRequest().getMultiple1()).isEqualTo(3);
+        assertThat(response.getRequest().getMultiple2()).isEqualTo(5);
+        assertThat(response.getRequest().getLimit()).isEqualTo(15);
+        assertThat(response.getRequest().getSubstitutionWordForMultiple1()).isEqualTo("fizz");
+        assertThat(response.getRequest().getSubstitutionWordForMultiple2()).isEqualTo("buzz");
+    }
+
+    @Test
+    void should_return_error_when_multiples_are_wrong() {
+        // setup
+        RequestSpecification wrongRequest = given()
+                .queryParam(MULTIPLE_1, "0")
+                .queryParam(MULTIPLE_2, "0")
+                .queryParam(LIMIT, "15")
+                .queryParam(SUBSTITUTION_WORD_FOR_MULTIPLE_1, "fizz")
+                .queryParam(SUBSTITUTION_WORD_FOR_MULTIPLE_2, "buzz");
+
+
+        // test & assert
+        wrongRequest.when().get(BASE_URL + port + FIZZ_BUZZ_ENDPOINT)
+                .then()
+                .contentType(JSON)
+                .statusCode(400);
+
     }
 
     private RequestSpecification buildRequestSpecification() {
         return given()
-                .queryParam("multiple1", "3")
-                .queryParam("multiple2", "5")
-                .queryParam("limit", "15")
-                .queryParam("substitutionWordForMultiple1", "fizz")
-                .queryParam("substitutionWordForMultiple2", "buzz");
+                .queryParam(MULTIPLE_1, "3")
+                .queryParam(MULTIPLE_2, "5")
+                .queryParam(LIMIT, "15")
+                .queryParam(SUBSTITUTION_WORD_FOR_MULTIPLE_1, "fizz")
+                .queryParam(SUBSTITUTION_WORD_FOR_MULTIPLE_2, "buzz");
     }
 
 }
