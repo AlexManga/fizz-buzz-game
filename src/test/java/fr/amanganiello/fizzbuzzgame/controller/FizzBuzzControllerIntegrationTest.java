@@ -61,7 +61,7 @@ class FizzBuzzControllerIntegrationTest {
 
         // assert
         assertThat(response)
-                .isEqualTo("The most used request is Request {multiple1=3, multiple2=5, limit=15, substitutionWordForMultiple1='fizz', substitutionWordForMultiple2='buzz'} with 1 call(s)");
+                .isEqualTo("The most used request is {multiple1=3, multiple2=5, limit=15, substitutionWordForMultiple1='fizz', substitutionWordForMultiple2='buzz'} with 1 call(s)");
     }
 
     private RequestSpecification buildRequestSpecification() {

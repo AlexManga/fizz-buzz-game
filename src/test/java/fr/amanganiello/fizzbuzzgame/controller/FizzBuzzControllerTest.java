@@ -66,7 +66,7 @@ class FizzBuzzControllerTest {
         ResponseEntity<String> fizzBuzzStats = controller.getFizzBuzzStats();
 
         // assert
-        assertThat(fizzBuzzStats.getBody()).isEqualTo("The most used request is Request {multiple1=2, multiple2=5, limit=10, substitutionWordForMultiple1='fizz', substitutionWordForMultiple2='buzz'} with 1 call(s)");
+        assertThat(fizzBuzzStats.getBody()).isEqualTo("The most used request is {multiple1=2, multiple2=5, limit=10, substitutionWordForMultiple1='fizz', substitutionWordForMultiple2='buzz'} with 1 call(s)");
     }
 
     @Test
